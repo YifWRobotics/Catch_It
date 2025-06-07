@@ -39,40 +39,104 @@ trigger_delta = False
 trigger_delta_hand = False
 
 def env_key_callback(keycode):
-  print("chr(keycode): ", (keycode))
-  global cmd_lin_y, cmd_lin_x, cmd_ang, paused, trigger_delta, trigger_delta_hand, delta_xyz, delta_xyz_hand
-  if keycode == 265: # AKA: up
-    cmd_lin_y += 1
-    print("up %f" % cmd_lin_y)
-  if keycode == 264: # AKA: down
-    cmd_lin_y -= 1
-    print("down %f" % cmd_lin_y)
-  if keycode == 263: # AKA: left
-    cmd_lin_x -= 1
-    print("left: %f" % cmd_lin_x)
-  if keycode == 262: # AKA: right
-    cmd_lin_x += 1
-    print("right %f" % cmd_lin_x) 
-  if keycode == 52: # AKA: 4
-    cmd_ang -= 0.2
-    print("turn left %f" % cmd_ang)
-  if keycode == 54: # AKA: 6
-    cmd_ang += 0.2
-    print("turn right %f" % cmd_ang)
-  if chr(keycode) == ' ': # AKA: space
-    if paused: paused = not paused
-  if keycode == 334: # AKA + (on the numpad)
-    trigger_delta = True
-    delta_xyz = 0.1
-  if keycode == 333: # AKA - (on the numpad)
-    trigger_delta = True
-    delta_xyz = -0.1
-  if keycode == 327: # AKA 7 (on the numpad)
-    trigger_delta_hand = True
-    delta_xyz_hand = 0.2
-  if keycode == 329: # AKA 9 (on the numpad)
-    trigger_delta_hand = True
-    delta_xyz_hand = -0.2
+    print("chr(keycode): ", (keycode))    
+    
+    # base movement
+    global cmd_lin_y, cmd_lin_x, cmd_ang
+    if keycode == 262: # keyboard right
+        cmd_lin_y += 0.2
+        print("right %f" % cmd_lin_y)
+    if keycode == 263: # keyboard left
+        cmd_lin_y -= 0.2
+        print("left %f" % cmd_lin_y)
+    if keycode == 261: # keyboard up
+        cmd_lin_x -= 0.2
+        print("left %f" % cmd_lin_x)
+    if keycode == 264: # keyboard down
+        cmd_lin_x += 0.2
+        print("right %f" % cmd_lin_x)
+    if keycode == 320: # numpad 0 left
+        cmd_ang -= 0.5
+        print("turn left %f" % cmd_ang)
+    if keycode == 330: # numpad . right
+        cmd_ang += 0.5
+        print("turn right %f" % cmd_ang)
+
+    # arm movement
+    global delta_x, delta_y, delta_z, trigger_delta
+    if keycode == 328: # numpad 8 left
+        trigger_delta = True
+        delta_x=-0.1
+        delta_y=0.0
+        delta_z=0.0
+    if keycode == 322: # numpad 2 right
+        trigger_delta = True
+        delta_x=+0.1
+        delta_y=0.0
+        delta_z=0.0
+    if keycode == 324: # numpad 4 back
+        trigger_delta = True
+        delta_x=0.0
+        delta_y=-0.1
+        delta_z=0.0
+    if keycode == 326: # numpad 6 front
+        trigger_delta = True
+        delta_x=0.0
+        delta_y=+0.1
+        delta_z=0.0
+    if keycode == 333: # numpad - up
+        trigger_delta = True
+        delta_x=0.0
+        delta_y=0.0
+        delta_z=+0.2
+    if keycode == 334: # numpad + down
+        trigger_delta = True
+        delta_x=0.0
+        delta_y=0.0
+        delta_z=-0.2
+    
+    # hand movement
+    global delta_xyz_hand, trigger_delta_hand
+    if keycode == 327: # AKA 7 (on the numpad)
+        trigger_delta_hand = True
+        delta_xyz_hand = 0.2
+    if keycode == 329: # AKA 9 (on the numpad)
+        trigger_delta_hand = True
+        delta_xyz_hand = -0.2
+
+    # global cmd_lin_y, cmd_lin_x, cmd_ang, paused, trigger_delta, trigger_delta_hand, delta_xyz, delta_xyz_hand
+    # if keycode == 265: # AKA: up
+    #     cmd_lin_y += 1
+    #     print("up %f" % cmd_lin_y)
+    # if keycode == 264: # AKA: down
+    #     cmd_lin_y -= 1
+    #     print("down %f" % cmd_lin_y)
+    # if keycode == 263: # AKA: left
+    #     cmd_lin_x -= 1
+    #     print("left: %f" % cmd_lin_x)
+    # if keycode == 262: # AKA: right
+    #     cmd_lin_x += 1
+    #     print("right %f" % cmd_lin_x) 
+    # if keycode == 52: # AKA: 4
+    #     cmd_ang -= 0.2
+    #     print("turn left %f" % cmd_ang)
+    # if keycode == 54: # AKA: 6
+    #     cmd_ang += 0.2
+    #     print("turn right %f" % cmd_ang)
+    # if chr(keycode) == ' ': # AKA: space
+    #     if paused: paused = not paused
+    # if keycode == 334: # AKA + (on the numpad)
+    #     trigger_delta = True
+    #     delta_xyz = 0.1
+    # if keycode == 333: # AKA - (on the numpad)
+    #     trigger_delta = True
+    #     delta_xyz = -0.1
+    # if keycode == 327: # AKA 7 (on the numpad)
+    #     trigger_delta_hand = True
+    #     delta_xyz_hand = 0.2
+    # if keycode == 329: # AKA 9 (on the numpad)
+    #     trigger_delta_hand = True
+    #     delta_xyz_hand = -0.2
 
 class DcmmVecEnv(gym.Env):
     metadata = {"render_modes": ["rgb_array", "depth_array", "depth_rgb_array"]}
@@ -512,7 +576,8 @@ class DcmmVecEnv(gym.Env):
             geom = object_body.find(".//geom[@name='object']")
             if geom is not None:
                 # Modify the type and size attributes
-                object_id = np.random.choice([0, 1, 2, 3, 4])
+                # object_id = np.random.choice([0, 1, 2, 3, 4])
+                object_id = 2
                 if self.object_train:
                     object_shape = DcmmCfg.object_shape[object_id]
                     geom.set("type", object_shape)  # Replace "box" with the desired type
@@ -968,26 +1033,37 @@ class DcmmVecEnv(gym.Env):
         if self.Dcmm.viewer != None: self.Dcmm.viewer.close()
 
     def run_test(self):
-        global cmd_lin_x, cmd_lin_y, trigger_delta, trigger_delta_hand, delta_xyz, delta_xyz_hand
+        # base
+        global cmd_lin_x, cmd_lin_y
+
+        # arm
+        global delta_x, delta_y, delta_z, trigger_delta
+        
+        # hand
+        global delta_xyz_hand, trigger_delta_hand
+
         self.reset()
         action = np.zeros(18)
         while True:
-            # Note: action's dim = 18, which includes 2 for the base, 4 for the arm, and 12 for the hand
-            # print("##### stage: ", self.stage)
-            # Keyboard control
+            # base
             action[0:2] = np.array([cmd_lin_x, cmd_lin_y])
+
+            # arm
             if trigger_delta:
-                print("delta_xyz: ", delta_xyz)
-                action[2:6] = np.array([delta_xyz, delta_xyz, delta_xyz, delta_xyz])
+                print("delta_x, delta_y, delta_z: ", delta_x, delta_y, delta_z)
+                action[2:6] = np.array([delta_x, delta_y, delta_z, 0])
                 trigger_delta = False
             else:
                 action[2:6] = np.zeros(4)
+
+            # hand
             if trigger_delta_hand:
                 print("delta_xyz_hand: ", delta_xyz_hand)
                 action[6:18] = np.ones(12)*delta_xyz_hand
                 trigger_delta_hand = False
             else:
                 action[6:18] = np.zeros(12)
+
             base_tensor = action[:2]
             arm_tensor = action[2:6]
             hand_tensor = action[6:18]
@@ -996,8 +1072,38 @@ class DcmmVecEnv(gym.Env):
                 'base': base_tensor,
                 'hand': hand_tensor
             }
-            # print("self.Dcmm.data.body('link6'):", self.Dcmm.data.body('link6'))
             observation, reward, terminated, truncated, info = self.step(actions_dict)
+
+        # global cmd_lin_x, cmd_lin_y, trigger_delta, trigger_delta_hand, delta_xyz, delta_xyz_hand
+        # self.reset()
+        # action = np.zeros(18)
+        # while True:
+        #     # Note: action's dim = 18, which includes 2 for the base, 4 for the arm, and 12 for the hand
+        #     # print("##### stage: ", self.stage)
+        #     # Keyboard control
+        #     action[0:2] = np.array([cmd_lin_x, cmd_lin_y])
+        #     if trigger_delta:
+        #         print("delta_xyz: ", delta_xyz)
+        #         action[2:6] = np.array([delta_xyz, delta_xyz, delta_xyz, delta_xyz])
+        #         trigger_delta = False
+        #     else:
+        #         action[2:6] = np.zeros(4)
+        #     if trigger_delta_hand:
+        #         print("delta_xyz_hand: ", delta_xyz_hand)
+        #         action[6:18] = np.ones(12)*delta_xyz_hand
+        #         trigger_delta_hand = False
+        #     else:
+        #         action[6:18] = np.zeros(12)
+        #     base_tensor = action[:2]
+        #     arm_tensor = action[2:6]
+        #     hand_tensor = action[6:18]
+        #     actions_dict = {
+        #         'arm': arm_tensor,
+        #         'base': base_tensor,
+        #         'hand': hand_tensor
+        #     }
+        #     # print("self.Dcmm.data.body('link6'):", self.Dcmm.data.body('link6'))
+        #     observation, reward, terminated, truncated, info = self.step(actions_dict)
 
 if __name__ == "__main__":
     os.chdir('../../')

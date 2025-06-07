@@ -19,7 +19,7 @@ distance_thresh = 0.25
 
 ## Define the initial joint positions of the arm and the hand
 arm_joints = np.array([
-   0.0, 0.0, -0.0, 3.07, 2.25, -1.5 
+   0.0, 0.0, -2.0, 0.0, 2.25, -1.5 
 ])
 
 hand_joints = np.array([
