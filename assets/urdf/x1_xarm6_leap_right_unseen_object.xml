@@ -326,6 +326,7 @@
         </body>
     </worldbody>
     <contact>
+        <pair geom1 = "floor" geom2 = "object" solref="-100000 0" solreffriction="0 -10000"/>
         <pair name = "floor_wheel_1" geom1 = "floor" geom2 = "Wheel1" friction = "1.1 1.1 0.005 0.0001 0.0001"/>
         <pair name = "floor_wheel_2" geom1 = "floor" geom2 = "Wheel2" friction = "1.1 1.1 0.005 0.0001 0.0001"/>
         <pair name = "floor_wheel_4" geom1 = "floor" geom2 = "Wheel4" friction = "1.1 1.1 0.005 0.0001 0.0001"/>
