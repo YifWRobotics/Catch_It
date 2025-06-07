@@ -595,30 +595,42 @@ class DcmmVecEnv(gym.Env):
         return xml_str
 
     def random_object_pose(self):
-        # Random Position
-        x = np.random.rand() - 0.5 # (-0.5, 0.5)
-        y = 2.2 + 0.3 * np.random.rand() # (2.2, 2.5)
-        # Low or High Starting Position
-        low_factor = False if np.random.rand() < 0.5 else True
-        # low_factor = True
-        if low_factor: height = 0.7 + 0.3 * np.random.rand()# (0.7, 1.0)
-        else: height = 1.0 + 0.6 * np.random.rand() # (1.0, 1.6)
-        # Random Velocity
-        r_vel = 1 + np.random.rand() # (1, 2)
-        alpha_vel = math.pi * (np.random.rand()*1/6 + 5/12) # alpha_vel = (5/12 * pi, 7/12 * pi)
-        # alpha_vel = math.pi * (np.random.rand()*1/3 + 1/3) # alpha_vel = (1/3 * pi, 2/3 * pi)
-        v_lin_x = r_vel * math.cos(alpha_vel) # (-0.0, -0.5)
-        v_lin_y = - r_vel * math.sin(alpha_vel) # (-0.5, -1.0)
-        v_lin_z = 0.5 * np.random.rand() + 2.0 # (2.0, 2.5)
-        if y > 2.25: v_lin_y -= 0.4
-        if height < 1.0: v_lin_z += 1
+        x = 0
+        y = 0.75
+        height = 0.75
+        v_lin_x = 0.0
+        v_lin_y = 0.0
+        v_lin_z = 0.0
         self.object_pos3d = np.array([x, y, height])
         self.object_vel6d = np.array([v_lin_x, v_lin_y, v_lin_z, 0.0, 0.0, 0.0])
-        # Random Static Time
         self.object_static_time = np.random.uniform(DcmmCfg.object_static[0], DcmmCfg.object_static[1])
-        # Random Quaternion
         r_obj_quat = R.from_euler('xyz', [0, np.random.rand()*1*math.pi, 0], degrees=False)
         self.object_q = r_obj_quat.as_quat()
+
+        # # Random Position
+        # # x = np.random.rand() - 0.5 # (-0.5, 0.5)
+        # # y = 2.2 + 0.3 * np.random.rand() # (2.2, 2.5)
+        # # Low or High Starting Position
+        # low_factor = False if np.random.rand() < 0.5 else True
+        # # low_factor = True
+        # if low_factor: height = 0.7 + 0.3 * np.random.rand()# (0.7, 1.0)
+        # else: height = 1.0 + 0.6 * np.random.rand() # (1.0, 1.6)
+        # # Random Velocity
+        # r_vel = 1 + np.random.rand() # (1, 2)
+        # alpha_vel = math.pi * (np.random.rand()*1/6 + 5/12) # alpha_vel = (5/12 * pi, 7/12 * pi)
+        # # alpha_vel = math.pi * (np.random.rand()*1/3 + 1/3) # alpha_vel = (1/3 * pi, 2/3 * pi)
+        # v_lin_x = r_vel * math.cos(alpha_vel) # (-0.0, -0.5)
+        # v_lin_y = - r_vel * math.sin(alpha_vel) # (-0.5, -1.0)
+        # v_lin_z = 0.5 * np.random.rand() + 2.0 # (2.0, 2.5)
+        # if y > 2.25: v_lin_y -= 0.4
+        # if height < 1.0: v_lin_z += 1
+        # self.object_pos3d = np.array([x, y, height])
+        # self.object_vel6d = np.array([v_lin_x, v_lin_y, v_lin_z, 0.0, 0.0, 0.0])
+        # # Random Static Time
+        # self.object_static_time = np.random.uniform(DcmmCfg.object_static[0], DcmmCfg.object_static[1])
+        # # Random Quaternion
+        # r_obj_quat = R.from_euler('xyz', [0, np.random.rand()*1*math.pi, 0], degrees=False)
+        # self.object_q = r_obj_quat.as_quat()
 
     
     def random_PID(self):
