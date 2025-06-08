@@ -407,15 +407,26 @@ class DcmmVecEnv(gym.Env):
         if geom2_base.size != 0:
             contacts_geom2 = geom_ids[geom2_base][:,0]
         base_contacts = np.concatenate((contacts_geom1, contacts_geom2))
+        # get the contact points of the floor
+        geom1_floor = np.where((geom1_ids == self.floor_id))[0]
+        geom2_floor = np.where((geom2_ids == self.floor_id))[0]
+        contacts_geom1 = np.array([]); contacts_geom2 = np.array([])
+        if geom1_floor.size != 0:
+            contacts_geom1 = geom_ids[geom1_floor][:,1]
+        if geom2_floor.size != 0:
+            contacts_geom2 = geom_ids[geom2_floor][:,0]
+        floor_contacts = np.concatenate((contacts_geom1, contacts_geom2))
         if self.print_contacts:
             print("object_contacts: ", object_contacts)
             print("hand_contacts: ", hand_contacts)
             print("base_contacts: ", base_contacts)
+            print("floor_contacts: ", floor_contacts)
         return {
             # Get contact point from the mujoco model
             "object_contacts": object_contacts,
             "hand_contacts": hand_contacts,
-            "base_contacts": base_contacts
+            "base_contacts": base_contacts,
+            "floor_contacts": floor_contacts
         }
 
     def _get_base_vel(self):
