@@ -52,7 +52,7 @@ def main(config: DictConfig):
                     print_obs = False, print_info = False,
                     print_reward = False, print_ctrl = False,
                     print_contacts = False, object_eval = config.object_eval,
-                    env_time = 5, steps_per_policy = 20)
+                    env_time = 8, steps_per_policy = 20)
 
     output_dif = os.path.join('outputs', config.output_name)
     # Get the local date and time
