@@ -77,7 +77,9 @@
         <body name="base_link" pos="0 0 0.105" axisangle="1 0 0 0.00872664626">
         <!-- overall mass = 113.434 kg -->
             <!-- camera -->
-            <camera name="top" mode="fixed" pos="0.0 -0.125 1.3325" axisangle="1 0 0 1.2" fovy="58"/>
+            <camera name="top" mode="fixed" pos="0.0 -0.125 1.3325" axisangle="1 0 0 0.8" fovy="58"/>
+            <camera name="topL" mode="fixed" pos="-0.25 -0.125 1.3325" axisangle="1 0 0 0.8" fovy="58"/>
+            <camera name="topR" mode="fixed" pos="0.25 -0.125 1.3325" axisangle="1 0 0 0.8" fovy="58"/>
             <!-- <camera name="top" mode="fixed" pos="0.0 -0.2 1.35" axisangle="1 0 0 1.1781" fovy="57"/> -->
             <!-- <inertial pos="-6.02831e-07 -0.0223905 0.321403" quat="0.992142 0.125073 -0.000252354 0.00339089" mass="15.599" diaginertia="1.58491 1.43052 0.656422" /> -->
             <inertial pos="0.000 -0.02 0.00" quat="0.492347 0.507724 -0.508707 0.490946" mass="100" diaginertia="2.54702 1.91073 1.14066" />
@@ -94,7 +96,7 @@
             <geom pos="-0.1555 -0.184282 1.22145" quat="0.7071 -0.00308533 -0.7071 0.00308533" type="mesh" rgba="1 1 1 1" mesh="l2_Link" />
             <geom pos="0.27 -0.161194 1.28876" quat="-0.497814 0.502177 -0.502177 -0.497814" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.792157 0.819608 0.933333 1" mesh="a2_Link" />
             <geom pos="0.27 -0.161194 1.28876" quat="-0.497814 0.502177 -0.502177 -0.497814" type="mesh" rgba="0.792157 0.819608 0.933333 1" mesh="a2_Link" />
-            <!--geom pos="0.04 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link" />-->
+            <!-- <geom pos="0.04 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link" />-->
             <geom pos="0.29 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link" />
             <geom pos="0.29 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link"/>
             <geom pos="-0.21 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link" />
