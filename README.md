@@ -1,16 +1,4 @@
-# [Catch It! Learning to Catch in Flight with Mobile Dexterous Hands](https://mobile-dex-catch.github.io/)
-[ICRA 2025] Official implementation of [Catch It](https://arxiv.org/abs/2409.10319). 
-
-<div style="display: flex; align-items: center;">
-    <img src="./assets/media/videos/teaser.gif" alt="teaser" style="margin-right: 10px;">
-</div>
-
-We open-source the simulation training scripts and provide guidances to the real-robot deployment. We name the environment with **D**exterous **C**atch with **M**obile **M**anipulation (**DCMM**).
-
-## News
-
-- **2025-01-29**: Our work is accepted by ICRA 2025 🎉! See you at ATL this May！
-- **2024-10-17**: Release the simulation training scripts and references for the real-robot depolyment. Have a try!
+# Modified from [Catch It! Learning to Catch in Flight with Mobile Dexterous Hands](https://mobile-dex-catch.github.io/)
 
 # Installation
 - Create conda environment and install pytorch:
@@ -67,15 +55,13 @@ Keyboard control:
 9. `7`: increase the joint position of the hand by (0.2, 0.2, 0.2, 0.2) rad;
 10. `9`: decrease the joint position of the hand by (0.2, 0.2, 0.2, 0.2) rad;
 
-**Note**: DO NOT change the speed of the mobile base too dramatically, or it might tip over.
-
 # Simulation Training/Testing
 <div style="display: flex; align-items: center;">
     <img src="./assets/media/videos/train.gif" alt="train" style="margin-right: 10px;">
 </div>
 
 ## Training/Testing Settings
-We utilize 64 CPUs and a single Nvidia RTX 3070 Ti GPU for model training. Regarding the efficiency, it is recommended to use at least 12 CPUs to create over 16 parallel environments during training.
+
 1. `configs/config.yaml`: 
 
     ```yaml
@@ -109,14 +95,33 @@ We utilize 64 CPUs and a single Nvidia RTX 3070 Ti GPU for model training. Regar
 ## Testing
 We provide our tracking model and catching model trained in a two-stage manner, which are `assets/models/track.pth` and `assets/models/catch_two_stage.pth`. You can test them for the tracking and catching task. Also, You can choose to evaluate on the training objects or the unseen objects by setting `object_eval`.
 
+### Global Setting
+
+In `configs/env/DcmmCfg.py`: set 
+```python
+XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object_original.xml"
+XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object_original.xml"
+```
+for the original, or
+```python
+XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object.xml"
+XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object.xml"
+```
+for the bounce.
+
 ### Testing on the Tracking Task
-Under the root `catch_it`:
+
+Under the root `catch_it`: run either
 ```bash
-python3 train_DCMM.py test=True task=Tracking num_envs=1 checkpoint_tracking=$(path_to_tracking_model) object_eval=True viewer=$(open_mujoco_viewer_or_not) imshow_cam=$(imshow_camera_or_not)
+python3 train_DCMM.py test=True task=Tracking num_envs=1 checkpoint_tracking="/home/yifan/Robotics/Catch_It/assets/models/track.pth" object_eval=False viewer=True imshow_cam=True
+python3 train_DCMM.py test=True task=Tracking num_envs=1 checkpoint_tracking="/home/yifan/Robotics/Catch_It/assets/models/track.pth" object_eval=True viewer=True imshow_cam=True
 ```
 ### Testing on the Catching Task
+
+Under the root `catch_it`: run either
 ```bash
-python3 train_DCMM.py test=True task=Catching_TwoStage num_envs=1 checkpoint_catching=$(path_to_catching_model) object_eval=True viewer=$(open_mujoco_viewer_or_not) imshow_cam=$(imshow_camera_or_not)
+python3 train_DCMM.py test=True task=Catching_TwoStage num_envs=1 checkpoint_catching="/home/yifan/Robotics/Catch_It/assets/models/catch_two_stage.pth" object_eval=False viewer=True imshow_cam=True
+python3 train_DCMM.py test=True task=Catching_TwoStage num_envs=1 checkpoint_catching="/home/yifan/Robotics/Catch_It/assets/models/catch_two_stage.pth" object_eval=True viewer=True imshow_cam=True
 ```
 
 ## Two-Stage Training From Scratch

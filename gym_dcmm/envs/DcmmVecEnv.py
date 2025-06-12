@@ -152,8 +152,8 @@ class DcmmVecEnv(gym.Env):
             Whether to show the camera image.
         object_eval: bool
             Use the evaluation object.
-        camera_name: str
-            The name of the camera.
+        camera_name: list[str]
+            The names of the cameras.
         object_name: str
             The name of the object.
         env_time: float
@@ -171,7 +171,7 @@ class DcmmVecEnv(gym.Env):
         viewer=False,
         imshow_cam=False,
         object_eval=False,
-        camera_name=["top", "wrist"],
+        camera_name=["topL", "topR"],
         object_name="object",
         env_time=8,
         steps_per_policy=20,
@@ -183,9 +183,11 @@ class DcmmVecEnv(gym.Env):
         print_info=False,
         print_contacts=False,
     ):
+        # self.current_task = "bounce"
+        self.current_task = "original"
         self.bounce_recorder = {"floor_contacts_prev_step": np.array([]), "floor_contacts_curr_step": np.array([]), "num": 0}
-        if task not in ["Tracking", "Catching"]:
-            raise ValueError("Invalid task: {}".format(task))
+        # if task not in ["Tracking", "Catching"]:
+        #    raise ValueError("Invalid task: {}".format(task))
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.camera_name = camera_name
@@ -607,42 +609,43 @@ class DcmmVecEnv(gym.Env):
         return xml_str
 
     def random_object_pose(self):
-        x = 0.05 * np.random.rand() 
-        y = 0.725 + 0.01 * np.random.rand()
-        height = 0.75
-        v_lin_x = 0.0
-        v_lin_y = 0.0
-        v_lin_z = 0.0
-        self.object_pos3d = np.array([x, y, height])
-        self.object_vel6d = np.array([v_lin_x, v_lin_y, v_lin_z, 0.0, 0.0, 0.0])
-        self.object_static_time = np.random.uniform(DcmmCfg.object_static[0], DcmmCfg.object_static[1])
-        r_obj_quat = R.from_euler('xyz', [0, np.random.rand()*1*math.pi, 0], degrees=False)
-        self.object_q = r_obj_quat.as_quat()
-
-        # # Random Position
-        # # x = np.random.rand() - 0.5 # (-0.5, 0.5)
-        # # y = 2.2 + 0.3 * np.random.rand() # (2.2, 2.5)
-        # # Low or High Starting Position
-        # low_factor = False if np.random.rand() < 0.5 else True
-        # # low_factor = True
-        # if low_factor: height = 0.7 + 0.3 * np.random.rand()# (0.7, 1.0)
-        # else: height = 1.0 + 0.6 * np.random.rand() # (1.0, 1.6)
-        # # Random Velocity
-        # r_vel = 1 + np.random.rand() # (1, 2)
-        # alpha_vel = math.pi * (np.random.rand()*1/6 + 5/12) # alpha_vel = (5/12 * pi, 7/12 * pi)
-        # # alpha_vel = math.pi * (np.random.rand()*1/3 + 1/3) # alpha_vel = (1/3 * pi, 2/3 * pi)
-        # v_lin_x = r_vel * math.cos(alpha_vel) # (-0.0, -0.5)
-        # v_lin_y = - r_vel * math.sin(alpha_vel) # (-0.5, -1.0)
-        # v_lin_z = 0.5 * np.random.rand() + 2.0 # (2.0, 2.5)
-        # if y > 2.25: v_lin_y -= 0.4
-        # if height < 1.0: v_lin_z += 1
-        # self.object_pos3d = np.array([x, y, height])
-        # self.object_vel6d = np.array([v_lin_x, v_lin_y, v_lin_z, 0.0, 0.0, 0.0])
-        # # Random Static Time
-        # self.object_static_time = np.random.uniform(DcmmCfg.object_static[0], DcmmCfg.object_static[1])
-        # # Random Quaternion
-        # r_obj_quat = R.from_euler('xyz', [0, np.random.rand()*1*math.pi, 0], degrees=False)
-        # self.object_q = r_obj_quat.as_quat()
+        if self.current_task == "bounce":
+            x = 0.05 * np.random.rand() 
+            y = 0.725 + 0.01 * np.random.rand()
+            height = 0.75
+            v_lin_x = 0.0
+            v_lin_y = 0.0
+            v_lin_z = 0.0
+            self.object_pos3d = np.array([x, y, height])
+            self.object_vel6d = np.array([v_lin_x, v_lin_y, v_lin_z, 0.0, 0.0, 0.0])
+            self.object_static_time = np.random.uniform(DcmmCfg.object_static[0], DcmmCfg.object_static[1])
+            r_obj_quat = R.from_euler('xyz', [0, np.random.rand()*1*math.pi, 0], degrees=False)
+            self.object_q = r_obj_quat.as_quat()
+        elif self.current_task == "original":
+            # Random Position
+            x = np.random.rand() - 0.5 # (-0.5, 0.5)
+            y = 2.2 + 0.3 * np.random.rand() # (2.2, 2.5)
+            # Low or High Starting Position
+            low_factor = False if np.random.rand() < 0.5 else True
+            # low_factor = True
+            if low_factor: height = 0.7 + 0.3 * np.random.rand()# (0.7, 1.0)
+            else: height = 1.0 + 0.6 * np.random.rand() # (1.0, 1.6)
+            # Random Velocity
+            r_vel = 1 + np.random.rand() # (1, 2)
+            alpha_vel = math.pi * (np.random.rand()*1/6 + 5/12) # alpha_vel = (5/12 * pi, 7/12 * pi)
+            # alpha_vel = math.pi * (np.random.rand()*1/3 + 1/3) # alpha_vel = (1/3 * pi, 2/3 * pi)
+            v_lin_x = r_vel * math.cos(alpha_vel) # (-0.0, -0.5)
+            v_lin_y = - r_vel * math.sin(alpha_vel) # (-0.5, -1.0)
+            v_lin_z = 0.5 * np.random.rand() + 2.0 # (2.0, 2.5)
+            if y > 2.25: v_lin_y -= 0.4
+            if height < 1.0: v_lin_z += 1
+            self.object_pos3d = np.array([x, y, height])
+            self.object_vel6d = np.array([v_lin_x, v_lin_y, v_lin_z, 0.0, 0.0, 0.0])
+            # Random Static Time
+            self.object_static_time = np.random.uniform(DcmmCfg.object_static[0], DcmmCfg.object_static[1])
+            # Random Quaternion
+            r_obj_quat = R.from_euler('xyz', [0, np.random.rand()*1*math.pi, 0], degrees=False)
+            self.object_q = r_obj_quat.as_quat()
 
     
     def random_PID(self):
@@ -912,7 +915,7 @@ class DcmmVecEnv(gym.Env):
 
             if self.object_id in self.bounce_recorder["floor_contacts_curr_step"] and not self.object_id in self.bounce_recorder["floor_contacts_prev_step"]:
                 self.bounce_recorder['num'] += 1
-                if self.bounce_recorder["num"] == 3:
+                if self.bounce_recorder["num"] == 5:
                     self.terminated = True
                     self.bounce_recorder = {"floor_contacts_prev_step": np.array([]), "floor_contacts_curr_step": np.array([]), "num": 0}
             # # Whether the base collides
@@ -1148,7 +1151,7 @@ if __name__ == "__main__":
     env = DcmmVecEnv(task='Catching', object_name='object', render_per_step=False, 
                     print_reward=False, print_info=False, 
                     print_contacts=False, print_ctrl=False, 
-                    print_obs=False, camera_name = ["top"],
+                    print_obs=False, camera_name = ["topL", "topR"],
                     render_mode="rgb_array", imshow_cam=args.imshow_cam, 
                     viewer = args.viewer, object_eval=False,
                     env_time = 8, steps_per_policy=20)
