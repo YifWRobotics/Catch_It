@@ -166,6 +166,7 @@ class DcmmVecEnv(gym.Env):
     def __init__(
         self,
         task="tracking",
+        current_task="original",
         render_mode="depth_array",
         render_per_step=False,
         viewer=False,
@@ -183,14 +184,17 @@ class DcmmVecEnv(gym.Env):
         print_info=False,
         print_contacts=False,
     ):
-        # self.current_task = "bounce"
-        self.current_task = "original"
+        self.current_task = DcmmCfg.current_task
         self.bounce_recorder = {"floor_contacts_prev_step": np.array([]), "floor_contacts_curr_step": np.array([]), "num": 0}
         # if task not in ["Tracking", "Catching"]:
         #    raise ValueError("Invalid task: {}".format(task))
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.camera_name = camera_name
+        if self.current_task == "bounce":
+            self.camera_name = ["topL", "topR"]
+        elif self.current_task == "original":
+            self.camera_name = ["top"]
         self.object_name = object_name
         self.imshow_cam = imshow_cam
         self.task = task
@@ -1151,7 +1155,7 @@ if __name__ == "__main__":
     env = DcmmVecEnv(task='Catching', object_name='object', render_per_step=False, 
                     print_reward=False, print_info=False, 
                     print_contacts=False, print_ctrl=False, 
-                    print_obs=False, camera_name = ["topL", "topR"],
+                    print_obs=False,
                     render_mode="rgb_array", imshow_cam=args.imshow_cam, 
                     viewer = args.viewer, object_eval=False,
                     env_time = 8, steps_per_policy=20)

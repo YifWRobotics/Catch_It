@@ -8,11 +8,16 @@ root = str(Path(path).parent)
 ASSET_PATH = os.path.join(root, "../../assets")
 # print("ASSET_PATH: ", ASSET_PATH)
 
-# Use Leap Hand
-# XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object_original.xml"
-# XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object_original.xml"
-XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object.xml"
-XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object.xml"
+current_task = "bounce"
+# current_task = "original"
+
+# Use Leap Hand 
+if current_task == "bounce":
+    XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object.xml"
+    XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object.xml"
+elif current_task == "original":
+    XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object_original.xml"
+    XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object_original.xml"
 
 XML_ARM_PATH = "urdf/xarm6_right.xml"
 ## Weight Saved Path
@@ -22,9 +27,14 @@ WEIGHT_PATH = os.path.join(ASSET_PATH, "weights")
 distance_thresh = 0.25
 
 ## Define the initial joint positions of the arm and the hand
-arm_joints = np.array([
-   0.0, 0.0, -2.0, 0.0, 2.25, -1.5 
-])
+if current_task == "bounce":
+    arm_joints = np.array([
+    0.0, 0.0, -2.0, 0.0, 2.25, -1.5 
+    ])
+elif current_task == "original":
+    arm_joints = np.array([
+    0.0, 0.0, -0.0, 3.07, 2.25, -1.5 
+    ])
 
 hand_joints = np.array([
     0.0, 0.0, 0.0, 0.0,

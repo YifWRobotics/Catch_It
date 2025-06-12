@@ -35,25 +35,42 @@ pip install -r requirements.txt
 - hand (dim=12): 12 delta joint positions of the hand -->
 
 # Simulation Environment Test
-## Keyboard Control Test
-Under `gym_dcmm/envs/`, run:
 
+## Global Setting
+
+In `configs/env/DcmmCfg.py`: set 
+```python
+current_task = "bounce"
+```
+for the bounce, or
+```python
+current_task = "original"
+```
+for the original.
+
+## Keyboard Control Test
+
+Under `gym_dcmm/envs/`, run:
 ```bash
-python3 DcmmVecEnv.py --viewer
+python3 DcmmVecEnv.py --viewer --imshow_cam
 ```
 
 Keyboard control:
 
-1. `↑` (up) : increase the y linear velocity (base frame) by 1 m/s;
-2. `↓` (down) : decrease the y linear velocity (base frame) by 1 m/s;
-3. `←` (left) : increase x linear velocity (base frame) by 1 m/s;
-4. `→` (right) : decrease x linear velocity (base frame) by 1 m/s;
-5. `4` (turn left) : decrease counter-clockwise angular velocity by 0.2 rad/s;
-6. `6` (turn right) : increase counter-clockwise angular velocity by 0.2 rad/s;
-7. `+`: increase the position & roll of the arm end effector by (0.1, 0.1, 0.1, 0.1) m;
-8. `-`: decrease the position & roll of the arm end effector by (0.1, 0.1, 0.1, 0.1) m;
-9. `7`: increase the joint position of the hand by (0.2, 0.2, 0.2, 0.2) rad;
-10. `9`: decrease the joint position of the hand by (0.2, 0.2, 0.2, 0.2) rad;
+1. `→` (262) : increase the y linear velocity (base frame) by 0.2 m/s;
+2. `←` (263) : decrease the y linear velocity (base frame) by 0.2 m/s;
+3. `↓` (264) : increase x linear velocity (base frame) by 0.2 m/s;
+4. `↑` (265) : decrease x linear velocity (base frame) by 0.2 m/s;
+5. `0` (320) : decrease counter-clockwise angular velocity by 0.5 rad/s;
+6. `.` (330) : increase counter-clockwise angular velocity by 0.5 rad/s;
+7. `8` (328): increase the position of the arm end effector by (-0.1, 0.0, 0.0) m;
+8. `2` (322): decrease the position of the arm end effector by (0.1, 0.0, 0.0) m;
+9. `4` (324): increase the position of the arm end effector by (0.0, -0.1, 0.0) m;
+10. `6` (326): decrease the position of the arm end effector by (0.0, 0.1, 0.0) m;
+9. `-` (333): increase the position of the arm end effector by (0.0, 0.0, 0.2) m;
+10. `+` (334): decrease the position of the arm end effector by (0.0, 0.0, -0.2) m;
+11. `7` (327): increase the joint position of the hand by (0.2, 0.2, 0.2, 0.2) rad;
+12. `9` (329): decrease the joint position of the hand by (0.2, 0.2, 0.2, 0.2) rad;
 
 # Simulation Training/Testing
 <div style="display: flex; align-items: center;">
@@ -94,20 +111,6 @@ Keyboard control:
 
 ## Testing
 We provide our tracking model and catching model trained in a two-stage manner, which are `assets/models/track.pth` and `assets/models/catch_two_stage.pth`. You can test them for the tracking and catching task. Also, You can choose to evaluate on the training objects or the unseen objects by setting `object_eval`.
-
-### Global Setting
-
-In `configs/env/DcmmCfg.py`: set 
-```python
-XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object_original.xml"
-XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object_original.xml"
-```
-for the original, or
-```python
-XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object.xml"
-XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object.xml"
-```
-for the bounce.
 
 ### Testing on the Tracking Task
 
