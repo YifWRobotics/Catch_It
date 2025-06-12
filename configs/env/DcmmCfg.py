@@ -8,14 +8,15 @@ root = str(Path(path).parent)
 ASSET_PATH = os.path.join(root, "../../assets")
 # print("ASSET_PATH: ", ASSET_PATH)
 
-current_task = "bounce"
-# current_task = "original"
+from omegaconf import OmegaConf
+cfg = OmegaConf.load("/home/yifan/Robotics/Catch_It/configs/config.yaml")
+global_task = cfg.global_task
 
 # Use Leap Hand 
-if current_task == "bounce":
+if global_task == "Bounce":
     XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object.xml"
     XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object.xml"
-elif current_task == "original":
+elif global_task == "Original":
     XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object_original.xml"
     XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object_original.xml"
 
@@ -27,11 +28,11 @@ WEIGHT_PATH = os.path.join(ASSET_PATH, "weights")
 distance_thresh = 0.25
 
 ## Define the initial joint positions of the arm and the hand
-if current_task == "bounce":
+if global_task == "Bounce":
     arm_joints = np.array([
     0.0, 0.0, -2.0, 0.0, 2.25, -1.5 
     ])
-elif current_task == "original":
+elif global_task == "Original":
     arm_joints = np.array([
     0.0, 0.0, -0.0, 3.07, 2.25, -1.5 
     ])

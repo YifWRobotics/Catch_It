@@ -38,14 +38,14 @@ pip install -r requirements.txt
 
 ## Global Setting
 
-In `configs/env/DcmmCfg.py`: set 
-```python
-current_task = "bounce"
-```
+In `configs/config.yaml`:: set 
+  ```yaml
+  global_task: Bounce
+  ```
 for the bounce, or
-```python
-current_task = "original"
-```
+  ```yaml
+  global_task: Original
+  ```
 for the original.
 
 ## Keyboard Control Test
@@ -87,6 +87,7 @@ Keyboard control:
     imshow_cam: False
     # RL Arguments
     test: False # False, True
+    global_task: Bounce # Original
     task: Tracking # Catching_TwoStage, Catching_OneStage, Tracking
     num_envs: 32 # This should be no more than 2x your CPUs (1x is recommended)
     object_eval: False

@@ -165,8 +165,8 @@ class DcmmVecEnv(gym.Env):
     """
     def __init__(
         self,
-        task="tracking",
-        current_task="original",
+        task="Tracking",
+        global_task="Original",
         render_mode="depth_array",
         render_per_step=False,
         viewer=False,
@@ -184,16 +184,17 @@ class DcmmVecEnv(gym.Env):
         print_info=False,
         print_contacts=False,
     ):
-        self.current_task = DcmmCfg.current_task
+        self.global_task = global_task
+        self.global_task = DcmmCfg.global_task
         self.bounce_recorder = {"floor_contacts_prev_step": np.array([]), "floor_contacts_curr_step": np.array([]), "num": 0}
         # if task not in ["Tracking", "Catching"]:
         #    raise ValueError("Invalid task: {}".format(task))
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self.camera_name = camera_name
-        if self.current_task == "bounce":
+        if self.global_task == "Bounce":
             self.camera_name = ["topL", "topR"]
-        elif self.current_task == "original":
+        elif self.global_task == "Original":
             self.camera_name = ["top"]
         self.object_name = object_name
         self.imshow_cam = imshow_cam
@@ -613,7 +614,7 @@ class DcmmVecEnv(gym.Env):
         return xml_str
 
     def random_object_pose(self):
-        if self.current_task == "bounce":
+        if self.global_task == "Bounce":
             x = 0.05 * np.random.rand() 
             y = 0.725 + 0.01 * np.random.rand()
             height = 0.75
@@ -625,7 +626,7 @@ class DcmmVecEnv(gym.Env):
             self.object_static_time = np.random.uniform(DcmmCfg.object_static[0], DcmmCfg.object_static[1])
             r_obj_quat = R.from_euler('xyz', [0, np.random.rand()*1*math.pi, 0], degrees=False)
             self.object_q = r_obj_quat.as_quat()
-        elif self.current_task == "original":
+        elif self.global_task == "Original":
             # Random Position
             x = np.random.rand() - 0.5 # (-0.5, 0.5)
             y = 2.2 + 0.3 * np.random.rand() # (2.2, 2.5)
