@@ -94,10 +94,18 @@
             <geom pos="-0.1555 -0.184282 1.22145" quat="0.7071 -0.00308533 -0.7071 0.00308533" type="mesh" rgba="1 1 1 1" mesh="l2_Link" />
             <geom pos="0.27 -0.161194 1.28876" quat="-0.497814 0.502177 -0.502177 -0.497814" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.792157 0.819608 0.933333 1" mesh="a2_Link" />
             <geom pos="0.27 -0.161194 1.28876" quat="-0.497814 0.502177 -0.502177 -0.497814" type="mesh" rgba="0.792157 0.819608 0.933333 1" mesh="a2_Link" />
-            <geom pos="0.04 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link" />
-            <geom pos="0.04 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" rgba="1 1 1 1" mesh="l3_Link" />
-            <geom pos="0 -0.104073 1.32024" quat="0 0 -0.868199 -0.496217" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.792157 0.819608 0.933333 1" mesh="Camera_Link" />
-            <geom pos="0 -0.104073 1.32024" quat="0 0 -0.868199 -0.496217" type="mesh" rgba="0.792157 0.819608 0.933333 1" mesh="Camera_Link" />
+            <!--geom pos="0.04 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link" />-->
+            <geom pos="0.29 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link" />
+            <geom pos="0.29 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link"/>
+            <geom pos="-0.21 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link" />
+            <geom pos="-0.21 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l3_Link"/>
+            <!-- <geom pos="0.04 -0.138499 1.31106" quat="0.00308533 0.7071 -0.7071 0.00308533" type="mesh" rgba="1 1 1 1" mesh="l3_Link" /> -->
+            <!-- <geom pos="0 -0.104073 1.32024" quat="0 0 -0.868199 -0.496217" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.792157 0.819608 0.933333 1" mesh="Camera_Link" /> -->
+            <geom pos="0.25 -0.104073 1.32024" quat="0 0 -0.868199 -0.496217" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.792157 0.819608 0.933333 1" mesh="Camera_Link" />
+            <geom pos="0.25 -0.104073 1.32024" quat="0 0 -0.868199 -0.496217" type="mesh" rgba="0.792157 0.819608 0.933333 1" mesh="Camera_Link" />
+            <geom pos="-0.25 -0.104073 1.32024" quat="0 0 -0.868199 -0.496217" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.792157 0.819608 0.933333 1" mesh="Camera_Link" />
+            <geom pos="-0.25 -0.104073 1.32024" quat="0 0 -0.868199 -0.496217" type="mesh" rgba="0.792157 0.819608 0.933333 1" mesh="Camera_Link" />
+            <!-- <geom pos="0 -0.104073 1.32024" quat="0 0 -0.868199 -0.496217" type="mesh" rgba="0.792157 0.819608 0.933333 1" mesh="Camera_Link" /> -->
             <geom pos="0.088 -0.215281 0.247688" quat="0.710185 0.704015 0 0" type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="l4_Link" />
             <geom pos="0.088 -0.215281 0.247688" quat="0.710185 0.704015 0 0" type="mesh" rgba="1 1 1 1" mesh="l4_Link" />
             <geom pos="0.1555 -0.215421 0.231689" quat="0.710185 0.704015 0 0" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.792157 0.819608 0.933333 1" mesh="a3_Link" />

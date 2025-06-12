@@ -49,7 +49,7 @@ def env_key_callback(keycode):
     if keycode == 263: # keyboard left
         cmd_lin_y -= 0.2
         print("left %f" % cmd_lin_y)
-    if keycode == 261: # keyboard up
+    if keycode == 265: # keyboard up
         cmd_lin_x -= 0.2
         print("left %f" % cmd_lin_x)
     if keycode == 264: # keyboard down
@@ -208,7 +208,7 @@ class DcmmVecEnv(gym.Env):
         self.fps = 1 / (self.steps_per_policy * self.Dcmm.model.opt.timestep)
         # Randomize the Object Info
         self.random_mass = 0.25
-        self.object_static_time = 0.75
+        self.object_static_time = 1.0
         self.object_throw = False
         self.object_train = True
         if object_eval: self.set_object_eval()
@@ -607,8 +607,8 @@ class DcmmVecEnv(gym.Env):
         return xml_str
 
     def random_object_pose(self):
-        x = 0
-        y = 0.75
+        x = 0.05 * np.random.rand() 
+        y = 0.725 + 0.01 * np.random.rand()
         height = 0.75
         v_lin_x = 0.0
         v_lin_y = 0.0
