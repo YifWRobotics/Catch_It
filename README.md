@@ -87,7 +87,7 @@ Keyboard control:
     imshow_cam: False
     # RL Arguments
     test: False # False, True
-    global_task: Bounce # Original
+    global_task: Bounce # Bounce or Original
     task: Tracking # Catching_TwoStage, Catching_OneStage, Tracking
     num_envs: 32 # This should be no more than 2x your CPUs (1x is recommended)
     object_eval: False

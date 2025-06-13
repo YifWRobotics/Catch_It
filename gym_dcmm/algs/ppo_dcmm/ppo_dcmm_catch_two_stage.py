@@ -16,7 +16,7 @@ from .utils import AverageScalarMeter, RunningMeanStd
 from tensorboardX import SummaryWriter
 
 class PPO_Catch_TwoStage(object):
-    def __init__(self, env, output_dif, full_config):
+    def __init__(self, env, output_dir, full_config):
         self.rank = -1
         self.device = full_config['rl_device']
         self.network_config = full_config.train.network
@@ -50,7 +50,7 @@ class PPO_Catch_TwoStage(object):
         # print("### Done loading tracking model")
         # ---- Output Dir ----
         # allows us to specify a folder where all experiments will reside
-        self.output_dir = output_dif
+        self.output_dir = output_dir
         self.nn_dir = os.path.join(self.output_dir, 'nn')
         self.tb_dif = os.path.join(self.output_dir, 'tb')
         os.makedirs(self.nn_dir, exist_ok=True)

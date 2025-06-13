@@ -42,7 +42,7 @@ def main(config: DictConfig):
     env_name = 'gym_dcmm/DcmmVecWorld-v0'
     task = 'Tracking' if config.task == 'Tracking' else 'Catching'
     print("config.num_envs: ", config.num_envs)
-    env = gym.make_vec(env_name, num_envs=int(config.num_envs), 
+    env = gym.make_vec(env_name, num_envs=int(config.num_envs),
                     task=task, camera_name=["top"],
                     render_per_step=False, render_mode = "rgb_array",
                     object_name = "object",
@@ -54,18 +54,20 @@ def main(config: DictConfig):
                     print_contacts = False, object_eval = config.object_eval,
                     env_time = 8, steps_per_policy = 20)
 
-    output_dif = os.path.join('outputs', config.output_name)
     # Get the local date and time
     local_tz = pytz.timezone('Asia/Shanghai')
     current_datetime = datetime.datetime.now().astimezone(local_tz)
-    current_datetime_str = current_datetime.strftime("%Y-%m-%d/%H:%M:%S")
-    output_dif = os.path.join(output_dif, current_datetime_str)
-    os.makedirs(output_dif, exist_ok=True)
+    current_datetime_str = current_datetime.strftime("%Y-%m-%d+%H:%M:%S")
+    if config.test:
+        output_dir = os.path.join('outputs', "Test+" + config.global_task + "+" + config.task + "+" + current_datetime_str)
+    else:
+        output_dir = os.path.join('outputs', "Train+" + config.global_task + "+" + config.task + "+" + current_datetime_str)
+    os.makedirs(output_dir, exist_ok=True)
 
     PPO = PPO_Track if config.task == 'Tracking' else \
           PPO_Catch_TwoStage if config.task == 'Catching_TwoStage' else \
           PPO_Catch_OneStage
-    agent = PPO(env, output_dif, full_config=config)
+    agent = PPO(env, output_dir, full_config=config)
 
     cprint('Start Training/Testing the Agent', 'green', attrs=['bold'])
     if config.test:

@@ -1,6 +1,6 @@
 """
-Author: Yuanhang Zhang
-Version@2024-10-17
+Original Author: Yuanhang Zhang
+Modified by: Yifan Wu
 All Rights Reserved
 ABOUT: this file constains the RL environment for the DCMM task
 """
@@ -918,33 +918,39 @@ class DcmmVecEnv(gym.Env):
             self.bounce_recorder["floor_contacts_prev_step"] = self.bounce_recorder["floor_contacts_curr_step"]
             self.bounce_recorder["floor_contacts_curr_step"] = self.contacts["floor_contacts"]
 
-            if self.object_id in self.bounce_recorder["floor_contacts_curr_step"] and not self.object_id in self.bounce_recorder["floor_contacts_prev_step"]:
-                self.bounce_recorder['num'] += 1
-                if self.bounce_recorder["num"] == 5:
+            if self.global_task == "Bounce":
+                if self.object_id in self.bounce_recorder["floor_contacts_curr_step"] and not self.object_id in self.bounce_recorder["floor_contacts_prev_step"]:
+                    self.bounce_recorder['num'] += 1
+                    if self.bounce_recorder["num"] == 3:
+                        self.terminated = True
+                        self.bounce_recorder = {"floor_contacts_prev_step": np.array([]), "floor_contacts_curr_step": np.array([]), "num": 0} 
+                if self.terminated:
+                    break
+            elif self.global_task == "Original":
+                # Update the contact information
+                self.contacts = self._get_contacts()
+                # Whether the base collides
+                if self.contacts['base_contacts'].size != 0:
                     self.terminated = True
-                    self.bounce_recorder = {"floor_contacts_prev_step": np.array([]), "floor_contacts_curr_step": np.array([]), "num": 0}
-            # # Whether the base collides
-            # if self.contacts['base_contacts'].size != 0:
-            #     self.terminated = True
-            # mask_coll = self.contacts['object_contacts'] < self.hand_start_id
-            # mask_finger = self.contacts['object_contacts'] > self.hand_start_id
-            # mask_hand = self.contacts['object_contacts'] >= self.hand_start_id
-            # mask_palm = self.contacts['object_contacts'] == self.hand_start_id
-            # # Whether the object is caught
-            # if self.step_touch == False:
-            #     if self.task == "Catching" and np.any(mask_hand):
-            #         self.step_touch = True
-            #     elif self.task == "Tracking" and np.any(mask_palm):
-            #         self.step_touch = True
-            # # Whether the object falls
-            # if not self.terminated:
-            #     if self.task == "Catching":
-            #         self.terminated = np.any(mask_coll)
-            #     elif self.task == "Tracking":
-            #         self.terminated = np.any(mask_coll) or np.any(mask_finger)
-            # # If the ball bounces a third time, terminate the episode  
-            if self.terminated:
-                break
+                mask_coll = self.contacts['object_contacts'] < self.hand_start_id
+                mask_finger = self.contacts['object_contacts'] > self.hand_start_id
+                mask_hand = self.contacts['object_contacts'] >= self.hand_start_id
+                mask_palm = self.contacts['object_contacts'] == self.hand_start_id
+                # Whether the object is caught
+                if self.step_touch == False:
+                    if self.task == "Catching" and np.any(mask_hand):
+                        self.step_touch = True
+                    elif self.task == "Tracking" and np.any(mask_palm):
+                        self.step_touch = True
+                # Whether the object falls
+                if not self.terminated:
+                    if self.task == "Catching":
+                        self.terminated = np.any(mask_coll)
+                    elif self.task == "Tracking":
+                        self.terminated = np.any(mask_coll) or np.any(mask_finger)
+                # If the object falls, terminate the episode in advance
+                if self.terminated:
+                    break
 
     def step(self, action):
         self.steps += 1
