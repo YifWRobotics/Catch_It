@@ -14,9 +14,11 @@ global_task = cfg.global_task
 
 # Use Leap Hand 
 if global_task == "Bounce":
+    env_time = 7.5
     XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object.xml"
     XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object.xml"
 elif global_task == "Original":
+    env_time = 2.5
     XML_DCMM_LEAP_OBJECT_PATH = "urdf/x1_xarm6_leap_right_object_original.xml"
     XML_DCMM_LEAP_UNSEEN_OBJECT_PATH = "urdf/x1_xarm6_leap_right_unseen_object_original.xml"
 

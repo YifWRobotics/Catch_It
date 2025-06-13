@@ -174,7 +174,7 @@ class DcmmVecEnv(gym.Env):
         object_eval=False,
         camera_name=["topL", "topR"],
         object_name="object",
-        env_time=8,
+        env_time=5.0,
         steps_per_policy=20,
         img_size=(480, 640),
         device='cuda:0',
@@ -328,6 +328,7 @@ class DcmmVecEnv(gym.Env):
         self.reward_touch = 0
         self.reward_stability = 0
         self.env_time = env_time
+        self.env_time = DcmmCfg.env_time
         self.stage_list = ["tracking", "grasping"]
         # Default stage is "tracking"
         self.stage = self.stage_list[0]
@@ -1165,5 +1166,5 @@ if __name__ == "__main__":
                     print_obs=False,
                     render_mode="rgb_array", imshow_cam=args.imshow_cam, 
                     viewer = args.viewer, object_eval=False,
-                    env_time = 8, steps_per_policy=20)
+                    steps_per_policy=20)
     env.run_test()
