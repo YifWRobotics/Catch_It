@@ -52,9 +52,9 @@ class PPO_Catch_TwoStage(object):
         # allows us to specify a folder where all experiments will reside
         self.output_dir = output_dir
         self.nn_dir = os.path.join(self.output_dir, 'nn')
-        self.tb_dif = os.path.join(self.output_dir, 'tb')
+        self.tb_dir = os.path.join(self.output_dir, 'tb')
         os.makedirs(self.nn_dir, exist_ok=True)
-        os.makedirs(self.tb_dif, exist_ok=True)
+        os.makedirs(self.tb_dir, exist_ok=True)
         # ---- Optim ----
         self.init_lr = float(self.ppo_config['learning_rate'])
         self.last_lr = float(self.ppo_config['learning_rate'])
@@ -98,7 +98,7 @@ class PPO_Catch_TwoStage(object):
         self.save_best_after = self.ppo_config['save_best_after']
         # ---- Tensorboard Logger ----
         self.extra_info = {}
-        writer = SummaryWriter(self.tb_dif)
+        writer = SummaryWriter(self.tb_dir)
         self.writer = writer
 
         self.episode_rewards = AverageScalarMeter(200)
