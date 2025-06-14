@@ -329,7 +329,10 @@ class DcmmVecEnv(gym.Env):
         self.reward_stability = 0
         self.env_time = env_time
         self.env_time = DcmmCfg.env_time
-        self.stage_list = ["tracking", "grasping"]
+        if self.global_task == "Bounce":
+            self.stage_list = ["pushing", "tracking", "absorbing"]
+        elif self.global_task == "Original":
+            self.stage_list = ["tracking", "grasping"]
         # Default stage is "tracking"
         self.stage = self.stage_list[0]
         self.steps = 0
@@ -617,8 +620,8 @@ class DcmmVecEnv(gym.Env):
     def random_object_pose(self):
         if self.global_task == "Bounce":
             x = 0.05 * np.random.rand() 
-            y = 0.725 + 0.01 * np.random.rand()
-            height = 0.75
+            y = 0.65 + 0.01 * np.random.rand()
+            height = 0.85
             v_lin_x = 0.0
             v_lin_y = 0.0
             v_lin_z = 0.0
@@ -763,50 +766,126 @@ class DcmmVecEnv(gym.Env):
         return np.linalg.norm(ctrl_array)
 
     def compute_reward(self, obs, info, ctrl):
-        '''
-        Rewards:
-        - Object Position Reward
-        - Object Orientation Reward
-        - Object Touch Success Reward
-        - Object Catch Stability Reward
-        - Collision Penalty
-        - Constraint Penalty
-        '''
-        rewards = 0.0
-        ## Object Position Reward (-inf, 0)
-        # Compute the closest distance the end-effector comes to the object
-        reward_base_pos = (self.info["base_distance"] - info["base_distance"]) * DcmmCfg.reward_weights["r_base_pos"]
-        reward_ee_pos = (self.info["ee_distance"] - info["ee_distance"]) * DcmmCfg.reward_weights["r_ee_pos"]
-        reward_ee_precision = math.exp(-50*info["ee_distance"]**2) * DcmmCfg.reward_weights["r_precision"]
+        if self.global_task == "Bounce":
+            '''
+            Rewards:
+            - Collision Penalty
+            - Constraint Penalty
+            - 
+            '''
+            rewards = 0.0
+            ## Collision Penalty
+            # Compute the Penalty when the arm is collided with the mobile base
+            reward_collision = 0
+            if self.contacts['base_contacts'].size != 0:
+                reward_collision = DcmmCfg.reward_weights["r_collision"]
+            
+            ## Constraint Penalty
+            # Compute the Penalty when the arm joint position is out of the joint limits
+            reward_constraint = 0 if self.arm_limit else -1
+            reward_constraint *= DcmmCfg.reward_weights["r_constraint"]
 
-        ## Collision Penalty
-        # Compute the Penalty when the arm is collided with the mobile base
-        reward_collision = 0
-        if self.contacts['base_contacts'].size != 0:
-            reward_collision = DcmmCfg.reward_weights["r_collision"]
-        
-        ## Constraint Penalty
-        # Compute the Penalty when the arm joint position is out of the joint limits
-        reward_constraint = 0 if self.arm_limit else -1
-        reward_constraint *= DcmmCfg.reward_weights["r_constraint"]
+            if self.task == "Catching":
+                reward_orient = 0.0
+                if self.stage == "pushing":
+                    rewards = reward_orient + reward_collision + reward_constraint
+                elif self.stage == "absorbing":
+                    rewards = reward_orient + reward_collision + reward_constraint
+                elif self.stage == "releasing":
+                    rewards = reward_orient + reward_collision + reward_constraint
 
-        ## Object Touch Success Reward
-        # Compute the reward when the object is caught successfully by the hand
-        if self.step_touch:
-            # print("TRACK SUCCESS!!!!!")
-            if not self.reward_touch:
-                self.catch_time = self.Dcmm.data.time - self.start_time
-            self.reward_touch = DcmmCfg.reward_weights["r_touch"][self.task]
-        else:
-            self.reward_touch = 0
+            return rewards
 
-        if self.task == "Catching":
-            reward_orient = 0
-            ## Calculate the total reward in different stages
-            if self.stage == "tracking":
+        elif self.global_task == "Original":
+            '''
+            Rewards:
+            - Object Position Reward
+            - Object Orientation Reward
+            - Object Touch Success Reward
+            - Object Catch Stability Reward
+            - Collision Penalty
+            - Constraint Penalty
+            '''
+            rewards = 0.0
+            ## Object Position Reward (-inf, 0)
+            # Compute the closest distance the end-effector comes to the object
+            reward_base_pos = (self.info["base_distance"] - info["base_distance"]) * DcmmCfg.reward_weights["r_base_pos"]
+            reward_ee_pos = (self.info["ee_distance"] - info["ee_distance"]) * DcmmCfg.reward_weights["r_ee_pos"]
+            reward_ee_precision = math.exp(-50*info["ee_distance"]**2) * DcmmCfg.reward_weights["r_precision"]
+
+            ## Collision Penalty
+            # Compute the Penalty when the arm is collided with the mobile base
+            reward_collision = 0
+            if self.contacts['base_contacts'].size != 0:
+                reward_collision = DcmmCfg.reward_weights["r_collision"]
+            
+            ## Constraint Penalty
+            # Compute the Penalty when the arm joint position is out of the joint limits
+            reward_constraint = 0 if self.arm_limit else -1
+            reward_constraint *= DcmmCfg.reward_weights["r_constraint"]
+
+            ## Object Touch Success Reward
+            # Compute the reward when the object is caught successfully by the hand
+            if self.step_touch:
+                # print("TRACK SUCCESS!!!!!")
+                if not self.reward_touch:
+                    self.catch_time = self.Dcmm.data.time - self.start_time
+                self.reward_touch = DcmmCfg.reward_weights["r_touch"][self.task]
+            else:
+                self.reward_touch = 0
+
+            if self.task == "Catching":
+                reward_orient = 0
+                ## Calculate the total reward in different stages
+                if self.stage == "tracking":
+                    ## Ctrl Penalty
+                    # Compute the norm of hand joint movement through the current actions in the tracking stage
+                    reward_ctrl = - self.norm_ctrl(ctrl, {"hand"})
+                    ## Object Orientation Reward
+                    # Compute the dot product of the velocity vector of the object and the z axis of the end_effector
+                    rotation_matrix = quaternion_to_rotation_matrix(obs["arm"]["ee_quat"])
+                    local_velocity_vector = np.dot(rotation_matrix.T, obs["object"]["v_lin_3d"])
+                    hand_z_axis = np.array([0, 0, 1])
+                    reward_orient = abs(cos_angle_between_vectors(local_velocity_vector, hand_z_axis)) * DcmmCfg.reward_weights["r_orient"]
+                    ## Add up the rewards
+                    rewards = reward_base_pos + reward_ee_pos + reward_orient + reward_ctrl + reward_collision + reward_constraint + self.reward_touch
+                    if self.print_reward:
+                        if reward_constraint < 0:
+                            print("ctrl: ", ctrl)
+                        print("### print reward")
+                        print("reward_ee_pos: {:.3f}, reward_ee_precision: {:.3f}, reward_orient: {:.3f}, reward_ctrl: {:.3f}, \n".format(
+                            reward_ee_pos, reward_ee_precision, reward_orient, reward_ctrl
+                        ) + "reward_collision: {:.3f}, reward_constraint: {:.3f}, reward_touch: {:.3f}".format(
+                            reward_collision, reward_constraint, self.reward_touch
+                        ))
+                        print("total reward: {:.3f}\n".format(rewards))
+                else:
+                    ## Ctrl Penalty
+                    # Compute the norm of base and arm movement through the current actions in the grasping stage
+                    reward_ctrl = - self.norm_ctrl(ctrl, {"base", "arm"})
+                    ## Set the Orientation Reward to maximum (1)
+                    reward_orient = 1
+                    ## Object Touch Stability Reward
+                    # Compute the reward when the object is caught stably in the hand
+                    if self.reward_touch:
+                        self.reward_stability = (info["env_time"] - self.catch_time) * DcmmCfg.reward_weights["r_stability"]
+                    else:
+                        self.reward_stability = 0.0
+                    ## Add up the rewards
+                    rewards = reward_base_pos + reward_ee_pos + reward_ee_precision + reward_orient + reward_ctrl + reward_collision + reward_constraint \
+                            + self.reward_touch + self.reward_stability
+                    if self.print_reward:
+                        print("##### print reward")
+                        print("reward_touch: {}, \nreward_ee_pos: {:.3f}, reward_ee_precision: {:.3f}, reward_orient: {:.3f}, \n".format(
+                            self.reward_touch, reward_ee_pos, reward_ee_precision, reward_orient
+                        ) + "reward_stability: {:.3f}, reward_collision: {:.3f}, \nreward_ctrl: {:.3f}, reward_constraint: {:.3f}".format(
+                            self.reward_stability, reward_collision, reward_ctrl, reward_constraint
+                        ))
+                        print("total reward: {:.3f}\n".format(rewards))
+            elif self.task == 'Tracking':
                 ## Ctrl Penalty
-                # Compute the norm of hand joint movement through the current actions in the tracking stage
-                reward_ctrl = - self.norm_ctrl(ctrl, {"hand"})
+                # Compute the norm of base and arm movement through the current actions in the grasping stage
+                reward_ctrl = - self.norm_ctrl(ctrl, {"base", "arm"})
                 ## Object Orientation Reward
                 # Compute the dot product of the velocity vector of the object and the z axis of the end_effector
                 rotation_matrix = quaternion_to_rotation_matrix(obs["arm"]["ee_quat"])
@@ -814,7 +893,7 @@ class DcmmVecEnv(gym.Env):
                 hand_z_axis = np.array([0, 0, 1])
                 reward_orient = abs(cos_angle_between_vectors(local_velocity_vector, hand_z_axis)) * DcmmCfg.reward_weights["r_orient"]
                 ## Add up the rewards
-                rewards = reward_base_pos + reward_ee_pos + reward_orient + reward_ctrl + reward_collision + reward_constraint + self.reward_touch
+                rewards = reward_base_pos + reward_ee_pos + reward_ee_precision + reward_orient + reward_ctrl + reward_collision + reward_constraint + self.reward_touch
                 if self.print_reward:
                     if reward_constraint < 0:
                         print("ctrl: ", ctrl)
@@ -826,54 +905,9 @@ class DcmmVecEnv(gym.Env):
                     ))
                     print("total reward: {:.3f}\n".format(rewards))
             else:
-                ## Ctrl Penalty
-                # Compute the norm of base and arm movement through the current actions in the grasping stage
-                reward_ctrl = - self.norm_ctrl(ctrl, {"base", "arm"})
-                ## Set the Orientation Reward to maximum (1)
-                reward_orient = 1
-                ## Object Touch Stability Reward
-                # Compute the reward when the object is caught stably in the hand
-                if self.reward_touch:
-                    self.reward_stability = (info["env_time"] - self.catch_time) * DcmmCfg.reward_weights["r_stability"]
-                else:
-                    self.reward_stability = 0.0
-                ## Add up the rewards
-                rewards = reward_base_pos + reward_ee_pos + reward_ee_precision + reward_orient + reward_ctrl + reward_collision + reward_constraint \
-                        + self.reward_touch + self.reward_stability
-                if self.print_reward:
-                    print("##### print reward")
-                    print("reward_touch: {}, \nreward_ee_pos: {:.3f}, reward_ee_precision: {:.3f}, reward_orient: {:.3f}, \n".format(
-                        self.reward_touch, reward_ee_pos, reward_ee_precision, reward_orient
-                    ) + "reward_stability: {:.3f}, reward_collision: {:.3f}, \nreward_ctrl: {:.3f}, reward_constraint: {:.3f}".format(
-                        self.reward_stability, reward_collision, reward_ctrl, reward_constraint
-                    ))
-                    print("total reward: {:.3f}\n".format(rewards))
-        elif self.task == 'Tracking':
-            ## Ctrl Penalty
-            # Compute the norm of base and arm movement through the current actions in the grasping stage
-            reward_ctrl = - self.norm_ctrl(ctrl, {"base", "arm"})
-            ## Object Orientation Reward
-            # Compute the dot product of the velocity vector of the object and the z axis of the end_effector
-            rotation_matrix = quaternion_to_rotation_matrix(obs["arm"]["ee_quat"])
-            local_velocity_vector = np.dot(rotation_matrix.T, obs["object"]["v_lin_3d"])
-            hand_z_axis = np.array([0, 0, 1])
-            reward_orient = abs(cos_angle_between_vectors(local_velocity_vector, hand_z_axis)) * DcmmCfg.reward_weights["r_orient"]
-            ## Add up the rewards
-            rewards = reward_base_pos + reward_ee_pos + reward_ee_precision + reward_orient + reward_ctrl + reward_collision + reward_constraint + self.reward_touch
-            if self.print_reward:
-                if reward_constraint < 0:
-                    print("ctrl: ", ctrl)
-                print("### print reward")
-                print("reward_ee_pos: {:.3f}, reward_ee_precision: {:.3f}, reward_orient: {:.3f}, reward_ctrl: {:.3f}, \n".format(
-                    reward_ee_pos, reward_ee_precision, reward_orient, reward_ctrl
-                ) + "reward_collision: {:.3f}, reward_constraint: {:.3f}, reward_touch: {:.3f}".format(
-                    reward_collision, reward_constraint, self.reward_touch
-                ))
-                print("total reward: {:.3f}\n".format(rewards))
-        else:
-            raise ValueError("Invalid task: {}".format(self.task))
-        
-        return rewards
+                raise ValueError("Invalid task: {}".format(self.task))
+            
+            return rewards
 
     def _step_mujoco_simulation(self, action_dict):
         ## TODO: Low-Pass-Filter the Base Velocity
