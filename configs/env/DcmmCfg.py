@@ -9,7 +9,7 @@ ASSET_PATH = os.path.join(root, "../../assets")
 # print("ASSET_PATH: ", ASSET_PATH)
 
 from omegaconf import OmegaConf
-cfg = OmegaConf.load("/home/yifan/Robotics/Catch_It/configs/config.yaml")
+cfg = OmegaConf.load("/home/ivy/Robotics/Catch_It/configs/config.yaml")
 global_task = cfg.global_task
 
 # Use Leap Hand 
